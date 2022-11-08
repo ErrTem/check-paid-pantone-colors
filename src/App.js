@@ -8,7 +8,7 @@ import Info from "./components/Info/Info";
 function App() {
   return (
     <BrowserRouter>
-      <div className={s.appWrapper}>
+      <div>
         <Navbar />
         <Routes>
           <Route path='/'

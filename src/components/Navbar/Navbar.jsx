@@ -4,27 +4,34 @@ import s from './Navbar.module.css'
 import logo from '../../assets/images/logo.png'
 
 const Navbar = () => {
+    const activeLink = ({ isActive }) => isActive ? s.active : '';
     return (
         <header className={s.header}>
             <div>
-                <img src={logo} alt='logo' />
+                <NavLink
+                    to='/'
+                >
+                    <img src={logo} alt='logo' />
+                </NavLink>
             </div>
-            <nav className={s.nav}>
-                <div className={s.item}>
-                    <NavLink
-                        to='/'
-                    >
-                        Home
-                    </NavLink>
-                </div>
-                <div className={s.item}>
-                    <NavLink
-                        to='/info'
-                    >
-                        Color Palette
-                    </NavLink>
-                </div>
-            </nav >
+
+            <div className={s.child}>
+                <NavLink
+                className={activeLink}
+                    to='/'
+                >
+                    Home
+                </NavLink>
+            </div>
+            <div className={s.child}>
+                <NavLink
+                className={activeLink}
+                    to='/info'
+                >
+                    Color Palette
+                </NavLink>
+            </div>
+
         </header>
     )
 }
