@@ -1,4 +1,11 @@
 .home {
+    display: flex;
+    flex-direction: column;
     background-color: rgb(230, 230, 230);
-    height: 100vh;
+
+
+}
+
+.elem {
+    display: flex;
 }

@@ -2,6 +2,7 @@ import React from 'react'
 import { NavLink } from 'react-router-dom'
 import s from './Navbar.module.css'
 import logo from '../../assets/images/logo.png'
+import axios from 'axios'
 
 const Navbar = () => {
     const activeLink = ({ isActive }) => isActive ? s.active : '';

@@ -1,4 +1,17 @@
-.info {
+.main {
+    display: flex;
+    flex-wrap: wrap;
+
+    justify-content: flex-start;
+    width: 1200px;
+}
+.palette {
     background-color: rgb(230, 230, 230);
-    height: 100vh;
+    display: flex;
+    
+
+}
+.item {
+    height: 50px;
+    width: 150px;
 }
