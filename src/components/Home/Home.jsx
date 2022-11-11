@@ -1,49 +1,53 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import s from './Home.module.css'
 import axios from 'axios'
+import store from '../redux/store'
+import HomeAnswers from './HomeAnswers/HomeAnswers'
 
 let Home = () => {
-  let [input, setInput] = useState('')
-  let [state, setState] = useState('')
-  let [css, setCss] = useState('')
+  let [input, setInput] = useState()
+  let [state, setState] = useState([])
+  let [css, setCss] = useState()
   let [docs, setDocs] = useState([])
+  let regexp = /#([a-f0-9]{3}){1,2}/gi
 
+  useEffect(() => {
+    // console.log(state)
+    // console.log(css)
+  }, [state, css, docs])
 
-  let handleSubmit = async (e) => {
+  let doSomething = useCallback(async (e) => {
     e.preventDefault()
     await axios
       .get(`${input}`)
-      .then(( response) => { // почему не работает с async
-        console.log(response.data)
-        setState(response.data)
-        res()
+      .then((response) => {
+        res(response.data) // await всегда дождётся выполнения res?
+        setState([...response.data.match(regexp)])
+        // setDocs([...css,...state]) // не могу объеденить два стейта в один, лох!
+
       })
       .catch((error) => {
         console.log(error)
       })
-  }
+  }, [input, state, css, docs])
 
-  let res = async () => {
-    let start = state.indexOf(`<link rel="stylesheet" type="text/css"`);
-    let end = state.indexOf(`>`, start)
-    let stylesheet = state.substring(start, end)
+  let res = async (htmlResponce) => {
+    let start = htmlResponce.indexOf(`<link rel="stylesheet" type="text/css"`);
+    let end = htmlResponce.indexOf(`>`, start)
+    let stylesheet = htmlResponce.substring(start, end)
     let findHrefStart = stylesheet.indexOf('href="')
     let result = stylesheet.substring(findHrefStart + 6, stylesheet.length - 1)
     await axios
       .get(`${input + result}`)
       .then((response) => {
-        console.log(response.data)
-        setCss(response.data)
+        // console.log(typeof response.data)
+        setCss([...response.data.match(regexp)])
       })
-
-  }
-
-  let cssRequest = async () => {
-
   }
 
   let textInput = (e) => {
     setInput(e.target.value)
+    console.log(input)
   }
 
   return (
@@ -53,15 +57,16 @@ let Home = () => {
           <input id='input' type='text' placeholder='Write site adress' onChange={textInput} />
         </div >
         <div className={s.elem}>
-          <button onClick={handleSubmit}>Check it now !</button>
+          <button onClick={doSomething}>Check it now !</button>
+          {/* <button onClick={searchColors}>Check result</button> */}
         </div>
-
-        <div>
-          {state}
-        </div>
-
 
       </form>
+
+      <div>вторая компонента
+        <HomeAnswers store={store} state={state} />
+      </div>
+
     </div>
   )
 }
