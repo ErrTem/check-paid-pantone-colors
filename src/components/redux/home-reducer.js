@@ -1,14 +1,115 @@
-// const SEND_WEBSITE = 'SEND_WEBSITE'
+import { linkAPI } from "../../API/api"
+import { colors } from "../colors"
 
-// let initialState = {}
+const regexp = /#([a-f0-9]{3}){1,2}/gi
 
-// const homeReducer = (state = initialState,action) => {
-//     switch (action.type) {
-//         case SEND_WEBSITE:
-//             return {}
-//             default :
-//             return state
-//     }
-// }
+const ADD_WEBSITE_URL = 'ADD_WEBSITE_URL'
+const ADD_STYLESHEET_URL = 'ADD_STYLESHEET_URL'
+const ADD_CSS_COLORS = 'ADD_CSS_COLORS'
+const ADD_HTML_COLORS = 'ADD_HTML_COLORS'
+const ADD_INTERSECTIONS = 'ADD_INTERSECTIONS'
 
-// export default homeReducer
+
+let initialState = {
+    wasAsked: false,
+    isAnswer: false,
+    websiteURL: '',
+    styleSheetURL: [],
+    colorsFromCss: {},
+    colorsFromHtml: {},
+    intersections: [],
+    colors: colors,
+}
+
+const homeReducer = (state = initialState, action) => {
+    switch (action.type) {
+        case ADD_WEBSITE_URL: {
+
+            return {
+                ...state,
+                websiteURL: action.newWebsiteUrl
+            }
+        }
+        case ADD_STYLESHEET_URL: {
+            return {
+                ...state,
+                styleSheetURL: [action.newStylesheetURL] // do lot of css
+            }
+        }
+
+        case ADD_CSS_COLORS: {
+            return {
+                ...state,
+                colorsFromCss: [...action.colorsCss]
+            }
+        }
+        case ADD_HTML_COLORS: {
+
+            return {
+                ...state,
+                colorsFromHtml: [...action.colorsHtml || []]
+            }
+        }
+        case ADD_INTERSECTIONS: {
+            let allColors = [...action.payload.colorsFromHtml,...action.payload.colorsFromCss]
+            let mapColors = Object.entries(colors)
+            let result = mapColors.filter(element => allColors.includes(element[1]))
+            let rerender = false
+            if (result.length !== 0) {
+                rerender = true
+            }
+
+            return {
+                ...state,
+                intersections: [...result],
+                isAnswer: rerender,
+                wasAsked: true
+            }
+        }
+        default:
+            return state
+    }
+}
+
+export const addWebsiteUrlActionCreator = (newWebsiteUrl) => ({
+    type: ADD_WEBSITE_URL, newWebsiteUrl
+})
+export const addStylesheetUrl = (newStylesheetURL) => ({
+    type: ADD_STYLESHEET_URL, newStylesheetURL
+})
+export const addCssColors = (colorsCss) => ({
+    type: ADD_CSS_COLORS, colorsCss
+})
+export const addHtmlColors = (colorsHtml) => ({
+    type: ADD_HTML_COLORS, colorsHtml
+})
+export const addIntersections = (colorsFromHtml, colorsFromCss) => ({
+    type: ADD_INTERSECTIONS, payload: { colorsFromHtml, colorsFromCss}
+})
+
+
+
+export const getStylesheetUrl = () => async (dispatch, getState) => {
+    // regexp
+    let websiteUrl = getState().homePage.websiteURL
+    let responseHtml = linkAPI.getHTML(websiteUrl).then(response => {response.data}).catch(error => console.log(error)) // ?
+  
+    let start = responseHtml.indexOf(`<link rel="stylesheet" type="text/css"`);
+    let end = responseHtml.indexOf(`>`, start)
+    let stylesheet = responseHtml.substring(start, end)
+    let findHrefStart = stylesheet.indexOf('href="')
+    let result = stylesheet.substring(findHrefStart + 6, stylesheet.length - 1)
+    dispatch(addStylesheetUrl(result))
+
+    let res = responseHtml.match(regexp)
+    dispatch(addHtmlColors(res))
+
+    let responseCss = await linkAPI.getCSS(websiteUrl, result)
+    dispatch(addCssColors(responseCss.match(regexp)))
+    let colorsFromHtml = getState().homePage.colorsFromHtml
+    let colorsFromCss = getState().homePage.colorsFromCss
+    dispatch(addIntersections(colorsFromHtml, colorsFromCss))
+
+}
+
+export default homeReducer
