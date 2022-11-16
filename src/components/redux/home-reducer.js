@@ -92,7 +92,7 @@ export const addIntersections = (colorsFromHtml, colorsFromCss) => ({
 export const getStylesheetUrl = () => async (dispatch, getState) => {
     // regexp
     let websiteUrl = getState().homePage.websiteURL
-    let responseHtml = linkAPI.getHTML(websiteUrl).then(response => {response.data}).catch(error => console.log(error)) // ?
+    let responseHtml =  await linkAPI.getHTML(websiteUrl)
   
     let start = responseHtml.indexOf(`<link rel="stylesheet" type="text/css"`);
     let end = responseHtml.indexOf(`>`, start)
