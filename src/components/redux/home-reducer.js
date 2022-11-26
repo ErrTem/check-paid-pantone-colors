@@ -24,7 +24,6 @@ let initialState = {
 const homeReducer = (state = initialState, action) => {
     switch (action.type) {
         case ADD_WEBSITE_URL: {
-
             return {
                 ...state,
                 websiteURL: action.newWebsiteUrl
@@ -33,7 +32,7 @@ const homeReducer = (state = initialState, action) => {
         case ADD_STYLESHEET_URL: {
             return {
                 ...state,
-                styleSheetURL: [action.newStylesheetURL] // do lot of css
+                styleSheetURL: [action.newStylesheetURL] // do for many css
             }
         }
 
@@ -51,7 +50,7 @@ const homeReducer = (state = initialState, action) => {
             }
         }
         case ADD_INTERSECTIONS: {
-            let allColors = [...action.payload.colorsFromHtml,...action.payload.colorsFromCss]
+            let allColors = [...action.payload.colorsFromHtml, ...action.payload.colorsFromCss] // is not iterable
             let mapColors = Object.entries(colors)
             let result = mapColors.filter(element => allColors.includes(element[1]))
             let rerender = false
@@ -84,28 +83,39 @@ export const addHtmlColors = (colorsHtml) => ({
     type: ADD_HTML_COLORS, colorsHtml
 })
 export const addIntersections = (colorsFromHtml, colorsFromCss) => ({
-    type: ADD_INTERSECTIONS, payload: { colorsFromHtml, colorsFromCss}
+    type: ADD_INTERSECTIONS, payload: { colorsFromHtml, colorsFromCss }
 })
 
 
 
 export const getStylesheetUrl = () => async (dispatch, getState) => {
-    // regexp
     let websiteUrl = getState().homePage.websiteURL
-    let responseHtml =  await linkAPI.getHTML(websiteUrl)
-  
-    let start = responseHtml.indexOf(`<link rel="stylesheet" type="text/css"`);
-    let end = responseHtml.indexOf(`>`, start)
-    let stylesheet = responseHtml.substring(start, end)
-    let findHrefStart = stylesheet.indexOf('href="')
-    let result = stylesheet.substring(findHrefStart + 6, stylesheet.length - 1)
-    dispatch(addStylesheetUrl(result))
+    let responseHtml = await linkAPI.getHTML(websiteUrl)
 
-    let res = responseHtml.match(regexp)
-    dispatch(addHtmlColors(res))
+    let linkToCss = undefined;
+    if (responseHtml !== undefined) {
+        let start = responseHtml.indexOf(`<link rel="stylesheet" type="text/css"`);
+        let end = responseHtml.indexOf(`>`, start)
+        let stylesheet = responseHtml.substring(start, end)
+        let findHrefStart = stylesheet.indexOf('href="')
 
-    let responseCss = await linkAPI.getCSS(websiteUrl, result)
-    dispatch(addCssColors(responseCss.match(regexp)))
+
+        if (findHrefStart !== -1) {
+            linkToCss = stylesheet.substring(findHrefStart + 6, stylesheet.length - 1)
+            dispatch(addStylesheetUrl(linkToCss))
+        }
+
+        let res = responseHtml.match(regexp)
+        dispatch(addHtmlColors(res))
+    }
+
+    let responseCss = await linkAPI.getCSS(websiteUrl, linkToCss)
+
+    if (responseCss !== undefined) {
+        dispatch(addCssColors(responseCss.match(regexp)))
+    }
+
+
     let colorsFromHtml = getState().homePage.colorsFromHtml
     let colorsFromCss = getState().homePage.colorsFromCss
     dispatch(addIntersections(colorsFromHtml, colorsFromCss))

@@ -12,7 +12,9 @@ const Info = () => {
         className={s.item}
         key={index}
       >
-        {item[0]}
+        <div className={s.name}>
+          {item[0]}
+        </div>
       </div >
     )
   })
