@@ -1,39 +1,29 @@
 import React from 'react'
 import s from './Home.module.css'
+import HomeItems from './HomeItems'
 
-let Home = (props) => {
+const regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+const link = 'https://www.theverge.com/2022/11/1/23434305/adobe-pantone-subscription-announcement-photoshop-illustrator';
 
-  let textInput = (e) => {
-    props.addUrl(e.target.value)
+let Home = ({ addUrl, websiteURL, getStylesheetUrl, wasAsked, isAnswer, intersections }) => {
+  const textInput = (e) => {
+    addUrl(e.target.value)
   }
 
-  let handleSubmit = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
-    if (props.websiteURL.startsWith('https://') || props.websiteURL.startsWith('http://')) {
-      props.getStylesheetUrl()
+    if (websiteURL.match(regexp)) {
+      getStylesheetUrl()
     } else {
       alert('please write correct site address')
     }
-
   }
-
-  let items = props.intersections.map((item, index) => {
-    return (
-      <div
-        style={{ backgroundColor: `${item[1]}` }}
-        className={s.item}
-        key={index}
-      >
-        {item[0]}
-      </div >
-    )
-  })
 
   return (
     <div className={s.home}>
       <div className={s.text}>
         Hello there! <br />
-        Due to the new rules of pantone license <a href='https://www.theverge.com/2022/11/1/23434305/adobe-pantone-subscription-announcement-photoshop-illustrator'>
+        Due to the new rules of pantone license <a href={link}>
           now you have to pay to use Pantone colors in Adobe products.
         </a> Who knows what corporations come up with next?<br />
         You can check the website for paid pantone colors by the form below
@@ -48,10 +38,10 @@ let Home = (props) => {
 
 
       <div>
-        {props.wasAsked
-          ? (props.isAnswer
+        {wasAsked
+          ? (isAnswer
             ? <div className={s.main}>
-              {items}
+              <HomeItems intersections={intersections} />
             </div>
             : <div>Not found</div>)
           : (<div></div>)

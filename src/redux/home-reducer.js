@@ -1,5 +1,5 @@
-import { linkAPI } from "../../API/api"
-import { colors } from "../colors"
+import { linkAPI } from '../API/api'
+import { colors } from '../assets/colors'
 
 const regexp = /#([a-f0-9]{3}){1,2}/gi
 
@@ -107,7 +107,7 @@ export const getStylesheetUrl = () => async (dispatch, getState) => {
 
         let linkToCss = undefined;
         if (responseHtml !== undefined) {
-            let start = responseHtml.indexOf(`<link rel="stylesheet" type="text/css"`);
+            let start = responseHtml.indexOf(`<link rel="stylesheet" type="text/css"`); //взять и одинарные кавычки
             let end = responseHtml.indexOf(`>`, start)
             let stylesheet = responseHtml.substring(start, end)
             let findHrefStart = stylesheet.indexOf('href="')

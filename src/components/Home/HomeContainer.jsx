@@ -1,9 +1,9 @@
 import { connect } from 'react-redux'
-import { colors } from '../colors'
-import { addWebsiteUrlActionCreator, getStylesheetUrl, setAnswer } from '../redux/home-reducer'
+import { colors } from '../../assets/colors'
+import { addWebsiteUrlActionCreator, getStylesheetUrl} from '../../redux/home-reducer'
 import Home from './Home'
 
-let mapStateToProps = (store) => {
+const mapStateToProps = (store) => {
     return {
         colors: colors,
         websiteURL: store.homePage.websiteURL,
@@ -16,7 +16,7 @@ let mapStateToProps = (store) => {
     }
 }
 
-let mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = (dispatch) => {
     return {
         addUrl: (newWebsiteUrl) => {
             dispatch(addWebsiteUrlActionCreator(newWebsiteUrl))

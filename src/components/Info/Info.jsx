@@ -1,19 +1,18 @@
 import React from 'react'
 import s from './Info.module.css'
-import store from '../redux/store'
-import { colors } from '../colors'
+import { colors } from '../../assets/colors'
 
 
 const Info = () => {
-  let items = Object.entries(colors).map((item, index) => {
+  let items = Object.entries(colors).map(([name,color]) => {
     return (
       <div
-        style={{ backgroundColor: `${item[1]}` }}
+        style={{ backgroundColor: `${color}` }}
         className={s.item}
-        key={index}
+        key={name}
       >
         <div className={s.name}>
-          {item[0]}
+          {name}
         </div>
       </div >
     )

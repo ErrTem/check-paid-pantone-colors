@@ -1,14 +1,13 @@
-import React from "react";
-import s from './App.module.css'
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Navbar from "./components/Navbar/Navbar";
-import Info from "./components/Info/Info";
-import HomeContainer from "./components/Home/HomeContainer";
-import { Provider } from "react-redux";
-import store from "./components/redux/store";
+import React from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import Navbar from './components/Navbar/Navbar';
+import Info from './components/Info/Info';
+import HomeContainer from './components/Home/HomeContainer';
+import { Provider } from 'react-redux';
+import store from '../src/redux/store';
 
 
-function App() {
+let App = () => {
   return (
     <BrowserRouter>
       <Provider store={store}>
