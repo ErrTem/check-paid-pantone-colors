@@ -12,7 +12,7 @@ let Home = (props) => {
     if (props.websiteURL.startsWith('https://') || props.websiteURL.startsWith('http://')) {
       props.getStylesheetUrl()
     } else {
-      alert('wrong!')
+      alert('please write correct site address')
     }
 
   }

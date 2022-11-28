@@ -8,6 +8,7 @@ const ADD_STYLESHEET_URL = 'ADD_STYLESHEET_URL'
 const ADD_CSS_COLORS = 'ADD_CSS_COLORS'
 const ADD_HTML_COLORS = 'ADD_HTML_COLORS'
 const ADD_INTERSECTIONS = 'ADD_INTERSECTIONS'
+const WAS_ASKED = 'WAS_ASKED'
 
 
 let initialState = {
@@ -49,6 +50,13 @@ const homeReducer = (state = initialState, action) => {
                 colorsFromHtml: [...action.colorsHtml || []]
             }
         }
+        case WAS_ASKED: {
+
+            return {
+                ...state,
+                wasAsked: true
+            }
+        }
         case ADD_INTERSECTIONS: {
             let allColors = [...action.payload.colorsFromHtml, ...action.payload.colorsFromCss] // is not iterable
             let mapColors = Object.entries(colors)
@@ -85,41 +93,49 @@ export const addHtmlColors = (colorsHtml) => ({
 export const addIntersections = (colorsFromHtml, colorsFromCss) => ({
     type: ADD_INTERSECTIONS, payload: { colorsFromHtml, colorsFromCss }
 })
+export const wasAsked = () => ({
+    type: WAS_ASKED
+})
 
 
 
 export const getStylesheetUrl = () => async (dispatch, getState) => {
-    let websiteUrl = getState().homePage.websiteURL
-    let responseHtml = await linkAPI.getHTML(websiteUrl)
+    dispatch(wasAsked())
+    try {
+        let websiteUrl = getState().homePage.websiteURL
+        let responseHtml = await linkAPI.getHTML(websiteUrl)
 
-    let linkToCss = undefined;
-    if (responseHtml !== undefined) {
-        let start = responseHtml.indexOf(`<link rel="stylesheet" type="text/css"`);
-        let end = responseHtml.indexOf(`>`, start)
-        let stylesheet = responseHtml.substring(start, end)
-        let findHrefStart = stylesheet.indexOf('href="')
+        let linkToCss = undefined;
+        if (responseHtml !== undefined) {
+            let start = responseHtml.indexOf(`<link rel="stylesheet" type="text/css"`);
+            let end = responseHtml.indexOf(`>`, start)
+            let stylesheet = responseHtml.substring(start, end)
+            let findHrefStart = stylesheet.indexOf('href="')
 
 
-        if (findHrefStart !== -1) {
-            linkToCss = stylesheet.substring(findHrefStart + 6, stylesheet.length - 1)
-            dispatch(addStylesheetUrl(linkToCss))
+            if (findHrefStart !== -1) {
+                linkToCss = stylesheet.substring(findHrefStart + 6, stylesheet.length - 1)
+                dispatch(addStylesheetUrl(linkToCss))
+            }
+
+            let res = responseHtml.match(regexp)
+            dispatch(addHtmlColors(res))
         }
 
-        let res = responseHtml.match(regexp)
-        dispatch(addHtmlColors(res))
+        let responseCss = await linkAPI.getCSS(websiteUrl, linkToCss)
+
+        if (responseCss !== undefined) {
+            dispatch(addCssColors(responseCss.match(regexp)))
+        }
+
+
+        let colorsFromHtml = getState().homePage.colorsFromHtml
+        let colorsFromCss = getState().homePage.colorsFromCss
+        dispatch(addIntersections(colorsFromHtml, colorsFromCss))
     }
-
-    let responseCss = await linkAPI.getCSS(websiteUrl, linkToCss)
-
-    if (responseCss !== undefined) {
-        dispatch(addCssColors(responseCss.match(regexp)))
+    catch (error) {
+        console.log(error)
     }
-
-
-    let colorsFromHtml = getState().homePage.colorsFromHtml
-    let colorsFromCss = getState().homePage.colorsFromCss
-    dispatch(addIntersections(colorsFromHtml, colorsFromCss))
-
 }
 
 export default homeReducer
